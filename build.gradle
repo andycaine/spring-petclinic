@@ -8,6 +8,8 @@ repositories {
 
 configurations {
   provided
+  mysql
+  dbdeploy
 }
 
 processTestResources {
@@ -16,10 +18,27 @@ processTestResources {
   }
 }
 
+task initDB << {
+  runSqlScript("initDB.sql")
+}
+
+test.dependsOn initDB
+
+def runSqlScript(filename) {
+  ant.sql(userid: "${databaseUsername}",
+          url: "jdbc:mysql://${databaseHost}",
+          password: "${databasePassword}",
+          driver: "com.mysql.jdbc.Driver",
+          classpath: configurations.mysql.asPath,
+          src: "src/main/resources/db/mysql/${filename}")
+}
+
 sourceSets {
   main.compileClasspath += configurations.provided
+  main.compileClasspath += configurations.mysql
   test.compileClasspath += configurations.provided
   test.runtimeClasspath += configurations.provided
+  test.runtimeClasspath += configurations.mysql
 }
 
 dependencies {
@@ -63,7 +82,7 @@ dependencies {
   compile "org.webjars:jquery-ui:1.9.2"
   compile "org.webjars:jquery:1.9.0"
   compile "org.springframework:spring-test:3.2.2.RELEASE"
-  compile "junit:junit:4.11"
+  testCompile "junit:junit:4.11"
   compile "org.hamcrest:hamcrest-library:1.3"
   compile "org.hamcrest:hamcrest-core:1.3"
   compile "org.aspectj:aspectjrt:1.7.2"
@@ -71,4 +90,6 @@ dependencies {
   compile "com.github.dandelion:datatables-jsp:0.8.9"
   compile "com.github.dandelion:datatables-export-itext:0.8.9"
   compile "com.github.dandelion:datatables-servlet2:0.8.9"
+  mysql 'mysql:mysql-connector-java:5.1.6'
+  dbdeploy 'com.dbdeploy:dbdeploy-core:3.0M3', 'com.dbdeploy:dbdeploy-ant:3.0M3'
 }

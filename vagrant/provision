@@ -1,0 +1,14 @@
+#!/bin/bash
+
+sudo apt-get update
+
+sudo debconf-set-selections <<< 'mysql-server-5.5 mysql-server/root_password password password'
+sudo debconf-set-selections <<< 'mysql-server-5.5 mysql-server/root_password_again password password'
+sudo apt-get -y install mysql-server
+
+sudo apt-get -y install tomcat7
+
+sudo groupadd petclinic
+
+sudo useradd -d /home/petclinic -g petclinic -G admin -m -p papAq5PwY/QQM -s /bin/bash petclinic
+
